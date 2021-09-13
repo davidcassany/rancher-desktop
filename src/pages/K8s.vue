@@ -100,14 +100,14 @@ export default {
       return /^win|^darwin$/.test(os.platform());
     },
     integrationTitle() {
-      if (os.platform() === 'darwin') {
+      if (os.platform() === 'darwin' || os.platform() === 'linux') {
         return 'Supporting Utilities';
       }
 
       return 'WSL Integration';
     },
     integrationDescription() {
-      if (os.platform() === 'darwin') {
+      if (os.platform() === 'darwin' || os.platform() === 'linux') {
         return 'Create symbolic links to tools in /usr/local/bin';
       }
 
