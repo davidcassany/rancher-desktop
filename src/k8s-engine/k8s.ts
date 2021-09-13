@@ -198,6 +198,8 @@ export interface KubernetesBackendPortForwarder {
 
 export function factory(): KubernetesBackend {
   switch (os.platform()) {
+  case 'linux':
+    return new LimaBackend();
   case 'darwin':
     return new LimaBackend();
   case 'win32':

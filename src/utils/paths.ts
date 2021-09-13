@@ -67,30 +67,22 @@ export class Win32Paths implements Paths {
   }
 }
 
+/**
+ * LinuxPaths implements paths for Linux.
+ */
 export class LinuxPaths implements Paths {
   protected readonly dataHome = process.env['XDG_DATA_HOME'] || path.join(os.homedir(), '.local', 'share');
   protected readonly configHome = process.env['XDG_CONFIG_HOME'] || path.join(os.homedir(), '.config');
   protected readonly cacheHome = process.env['XDG_CACHE_HOME'] || path.join(os.homedir(), '.cache');
-  get config() {
-    return path.join(this.configHome, APP_NAME);
-  }
 
-  get logs() {
-    return path.join(this.dataHome, APP_NAME, 'logs');
-  }
-
-  get cache() {
-    return path.join(this.cacheHome, APP_NAME);
-  }
+  config = path.join(this.configHome, APP_NAME); 
+  logs = path.join(this.dataHome, APP_NAME, 'logs');
+  cache = path.join(this.cacheHome, APP_NAME);
+  lima = path.join(this.dataHome, APP_NAME, 'lima');
 
   get wslDistro(): string {
     throw new Error('wslDistro not available for Linux');
   }
-
-  get lima(): string {
-    throw new Error('lima not available for Linux');
-  }
-
   get hyperkit(): string {
     throw new Error('hyperkit not available for Linux');
   }

@@ -101,11 +101,14 @@ export function init(): Settings {
       throw (err);
     }
     // Use default settings
-    if (err.code === 'ENOENT' && os.platform() === 'darwin') {
+    if (err.code === 'ENOENT' && (os.platform() === 'darwin' || os.platform() === 'linux')) {
       const totalMemoryInGB = os.totalmem() / 2 ** 30;
 
       // 25% of available ram up to a maximum of 6gb
       defaultSettings.kubernetes.memoryInGB = Math.min(6, Math.round(totalMemoryInGB / 4.0));
+    }
+    if (os.platform() === 'linux') {
+      defaultSettings.updater = false;
     }
     settings = defaultSettings;
     save(settings);
@@ -217,7 +220,7 @@ const updateTable: Record<number, (settings: any) => void> = {
     }
   },
   2: (settings) => {
-    if (os.platform() === 'darwin') {
+    if (os.platform() === 'darwin' || os.platform() === 'linux') {
       console.log('Removing hyperkit virtual machine files');
       try {
         // eslint-disable-next-line deprecation/deprecation -- Needed for compatibility.

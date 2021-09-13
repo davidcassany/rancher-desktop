@@ -261,13 +261,25 @@ export default class LimaBackend extends events.EventEmitter implements K8s.Kube
   }
 
   protected async ensureVirtualizationSupported() {
-    const { stdout } = await childProcess.spawnFile(
-      'sysctl', ['kern.hv_support'],
-      { stdio: ['inherit', 'pipe', await Logging.k8s.fdStream] });
+    if (os.platform().startsWith('linux')) {
+      const { stdout } = await childProcess.spawnFile(
+        'cat', ['/proc/cpuinfo'],
+        { stdio: ['inherit', 'pipe', await Logging.k8s.fdStream] });
 
-    if (!/:\s*1$/.test(stdout.trim())) {
-      console.log(`Virtualization support error: got ${ stdout.trim() }`);
-      throw new Error('Virtualization does not appear to be supported on your machine.');
+      if (!/vmx|svm/g.test(stdout.trim())) {
+        console.log(`Virtualization support error: got ${ stdout.trim() }`);
+        throw new Error('Virtualization does not appear to be supported on your machine.');
+      }
+    }
+    if (os.platform().startsWith('darwin')) {
+      const { stdout } = await childProcess.spawnFile(
+        'sysctl', ['kern.hv_support'],
+        { stdio: ['inherit', 'pipe', await Logging.k8s.fdStream] });
+
+      if (!/:\s*1$/.test(stdout.trim())) {
+        console.log(`Virtualization support error: got ${ stdout.trim() }`);
+        throw new Error('Virtualization does not appear to be supported on your machine.');
+      }
     }
   }
 
@@ -376,7 +388,9 @@ export default class LimaBackend extends events.EventEmitter implements K8s.Kube
       // new configuration
       await fs.promises.mkdir(path.dirname(this.CONFIG_PATH), { recursive: true });
       await fs.promises.writeFile(this.CONFIG_PATH, yaml.stringify(config));
-      await childProcess.spawnFile('tmutil', ['addexclusion', paths.lima]);
+      if (os.platform().startsWith('darwin')) {
+        await childProcess.spawnFile('tmutil', ['addexclusion', paths.lima]);
+      }
     }
   }
 
