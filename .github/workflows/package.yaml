@@ -91,6 +91,12 @@ jobs:
         name: Rancher Desktop-linux.zip
         path: dist/rancher-desktop*.zip
         if-no-files-found: error
+    - name: Trigger OBS services
+      uses: distributhor/workflow-webhook@v2
+      env:
+        webhook_type: 'form-urlencoded'
+        webhook_url: ${{ secrets.OBS_WEBHOOK_URL_CANARY }}
+        webhook_secret: ${{ secrets.OBS_WEBHOOK_TOKEN_CANARY }}
 
   sign:
     name: Test Signing
